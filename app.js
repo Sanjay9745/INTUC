@@ -27,7 +27,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/user', userRoutes);
 
-app.get("/",()=>{
+app.get("/",(req,res)=>{
   res.send("hello");
 })
 
