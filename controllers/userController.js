@@ -2,6 +2,7 @@ const User = require("../models/User");
 
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const Gallery = require("../models/Galley");
 const jwtSecret = process.env.JWT_SECRET;
 const register = async (req, res) => {
   try {
@@ -16,7 +17,7 @@ const register = async (req, res) => {
       date_of_birth,
       block,
       constituency,
-      union, // Change "Union" to "union" here
+      union,
       addaar,
       pan_card,
     } = req.body;
@@ -206,7 +207,15 @@ const deleteUser = async (req, res) => {
   }
 };
 
-
+const getGallery = async (req, res) => {
+  try {
+    const gallery = await Gallery.find();
+    res.status(200).json(gallery);
+  } catch (error) {
+    console.error("Error during login:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 module.exports = {
   register,
   login,
@@ -214,4 +223,5 @@ module.exports = {
   details,
   update,
   deleteUser,
+  getGallery,
 };

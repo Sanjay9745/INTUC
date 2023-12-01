@@ -6,6 +6,7 @@ const userAuth = require('../middleware/userAuth');
 
 router.get('/protected', userAuth, userController.protected);
 router.get('/details', userAuth, userController.details);
+router.get('/gallery', userController.getGallery);
 
 router.post('/register', userController.register);
 router.post('/login', userController.login);

@@ -1,8 +1,9 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const Gallery = require("../models/Galley");
 const jwtSecret = process.env.JWT_ADMIN_SECRET;
-
+const fs = require("fs");
 const adminLogin = async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -111,13 +112,48 @@ const getAllOrders = async (req, res) => {
     }
 }
 
-
+const addGallery = async (req, res) => {
+    try {
+        const { name, description} = req.body;
+        req.body.image = req.file;
+        let imageObj = req.body.image;
+        // if (!name || !description ) {
+        // return res
+        //     .status(400)
+        //     .json({ error: "Please provide all required fields." });
+        // }
+        const newGallery = await Gallery.create({
+        name,
+        description,
+        image: `galleryImage/${imageObj.filename}`,
+        });
+        res.status(201).json(newGallery);
+    } catch (error) {
+        console.error("Error adding gallery:", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+const deleteImage = async (req, res) => {
+    try {
+        const image = await Gallery.findOneAndDelete({_id:req.params.id});
+        if (!image) {
+        return res.status(404).json({ error: "Image not found" });
+        }
+        
+        res.status(200).json({ msg: "Image removed" });
+    } catch (error) {
+        console.error("Error deleting image:", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
 module.exports = {
     adminLogin,
     adminRegister,
     getAllUsers,
     getUser,
     deleteUser,
-    getAllOrders
+    getAllOrders,
+    addGallery,
+    deleteImage,
 
 }

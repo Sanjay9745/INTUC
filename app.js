@@ -4,7 +4,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
-
+const adminRoutes = require('./routes/adminRoutes');
 const app = express();
 const path = require("path")
 const PORT = process.env.PORT || 3000;
@@ -24,8 +24,10 @@ mongoose.connect(MONGODB_URI)
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public")))
 
 app.use('/api/user', userRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get("/",(req,res)=>{
   res.send("hello");
