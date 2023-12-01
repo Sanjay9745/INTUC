@@ -245,7 +245,7 @@ module.exports = {
     addCalendarEvent,
     getCalendarEvents,
     deleteCalendarEvent,
-    AddSlogan,
+    addSlogan,
     getSlogan,
     deleteSlogan
 }
