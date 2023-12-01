@@ -30,8 +30,13 @@ router.post('/register',adminController.adminRegister);
 router.get('/user/:id',adminAuth,adminController.getUser);
 router.get('/users',adminAuth,adminController.getAllUsers);    
 router.get("/calendar-events/:date",adminController.getCalendarEvents)
+router.get('/slogan',adminController.getSlogan);
+
 router.post('/gallery',galleryImage.single('image'),adminAuth,adminController.addGallery);
 router.post('/calendar-event/:date',adminAuth,adminController.addCalendarEvent)
+router.post('/slogan',adminAuth,adminController.addSlogan);
+
 router.delete('/deleteImage/:id',adminAuth,adminController.deleteImage);
+router.delete('/slogan/:id',adminAuth,adminController.deleteUser);
 router.delete("/calendar-event/:id",adminAuth,adminController.deleteCalendarEvent)
 module.exports = router;

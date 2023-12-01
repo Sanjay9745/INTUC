@@ -5,6 +5,7 @@ const bcrypt = require("bcrypt");
 const Gallery = require("../models/Galley");
 const jwtSecret = process.env.JWT_ADMIN_SECRET;
 const fs = require("fs");
+const Slogan = require("../models/Slogan");
 const adminLogin = async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -193,6 +194,45 @@ const deleteCalendarEvent = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 }
+const AddSlogan = async (req, res) => {
+    try {
+        const { slogan } = req.body;
+        if (!slogan) {
+        return res
+            .status(400)
+            .json({ error: "Please provide all required fields." });
+        }
+        const newSlogan = await Slogan.create({
+        slogan,
+        });
+        res.status(201).json(newSlogan);
+    } catch (error) {
+        console.error("Error adding slogan:", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+const getSlogan = async (req, res) => {
+    try {
+        const slogan = await Slogan.find({});
+        res.status(200).json(slogan);
+    } catch (error) {
+        console.error("Error getting slogan:", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+const deleteSlogan = async (req, res) => {
+    try {
+        const slogan = await Slogan.findOneAndDelete({_id:req.params.id});
+        if (!slogan) {
+        return res.status(404).json({ error: "Slogan not found" });
+        }
+        
+        res.status(200).json({ msg: "Slogan removed" });
+    } catch (error) {
+        console.error("Error deleting slogan:", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
 module.exports = {
     adminLogin,
     adminRegister,
@@ -204,5 +244,8 @@ module.exports = {
     deleteImage,
     addCalendarEvent,
     getCalendarEvents,
-    deleteCalendarEvent
+    deleteCalendarEvent,
+    AddSlogan,
+    getSlogan,
+    deleteSlogan
 }
