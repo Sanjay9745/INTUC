@@ -25,11 +25,13 @@ const GalleryStorage = multer.diskStorage({
       fileSize: 20 * 1024 * 1024, // 20MB in bytes
     },
   });
-// router.post('/login',adminController.login);
-// router.post('/register',adminController.register);
+router.post('/login',adminController.adminLogin);
+router.post('/register',adminController.adminRegister);
 router.get('/user/:id',adminAuth,adminController.getUser);
 router.get('/users',adminAuth,adminController.getAllUsers);    
-router.post('/gallery',galleryImage.single('image'),adminController.addGallery);
-router.delete('/deleteImage/:id',adminController.deleteImage);
-
+router.get("/calendar-events/:date",adminController.getCalendarEvents)
+router.post('/gallery',galleryImage.single('image'),adminAuth,adminController.addGallery);
+router.post('/calendar-event/:date',adminAuth,adminController.addCalendarEvent)
+router.delete('/deleteImage/:id',adminAuth,adminController.deleteImage);
+router.delete("/calendar-event/:id",adminAuth,adminController.deleteCalendarEvent)
 module.exports = router;
