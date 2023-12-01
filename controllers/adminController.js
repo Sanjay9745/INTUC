@@ -8,13 +8,13 @@ const fs = require("fs");
 const Slogan = require("../models/Slogan");
 const adminLogin = async (req, res) => {
     try {
-        const { username, password } = req.body;
-        if (!username || !password) {
+        const { email, password } = req.body;
+        if (!email || !password) {
         return res
             .status(400)
             .json({ error: "Please provide all required fields." });
         }
-        const user = await User.findOne({ username });
+        const user = await User.findOne({ email });
         if (!user) {
         return res.status(400).json({ error: "Invalid credentials" });
         }
@@ -39,20 +39,20 @@ const adminLogin = async (req, res) => {
 //remove this after creating admin
 const adminRegister = async (req, res) => {
     try {
-        const { username, password } = req.body;
-        if (!username || !password) {
+        const { email, password } = req.body;
+        if (!email || !password) {
         return res
             .status(400)
             .json({ error: "Please provide all required fields." });
         }
-        const user = await User.findOne({ username });
+        const user = await User.findOne({ email });
         if (user) {
         return res.status(400).json({ error: "User already exists" });
         }
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
         const newUser = await User.create({
-        username,
+        email,
         password: hashedPassword,
         });
         const payload = {
