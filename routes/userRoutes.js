@@ -10,7 +10,8 @@ router.get('/gallery', userController.getGallery);
 
 router.post('/register', userController.register);
 router.post('/login', userController.login);
-
+router.post('/sendOTP',userController.sendOTP);
+router.post('/verifyOTP',userController.verifyOTP);
 //update
 router.put('/update', userAuth, userController.update);
 

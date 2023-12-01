@@ -155,5 +155,5 @@ module.exports = {
     getAllOrders,
     addGallery,
     deleteImage,
-
+    
 }

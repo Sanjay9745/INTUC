@@ -3,6 +3,7 @@ const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const Gallery = require("../models/Galley");
+const { sendMail } = require("./emailController");
 const jwtSecret = process.env.JWT_SECRET;
 const register = async (req, res) => {
   try {
@@ -206,7 +207,91 @@ const deleteUser = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+const sendOTP = async (req, res) => {
+  try {
+    // Step 1: Receive User Data
+    const { email } = req.body;
 
+    // Step 2: Validate User Input
+    if (!email) {
+      return res.status(400).json({ error: 'Please provide email.' });
+    }
+
+    // Step 3: Find User by Email
+    const user = await User.findOne({ email: email });
+
+    // Step 4: Check if the user is already verified
+    if (!user) {
+      return res.status(400).json({ error: 'User not found' });
+    }
+
+    if (user.verified) {
+      return res.status(400).json({ error: 'User already verified' });
+    }
+
+    // Step 5: Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000);
+
+    // Step 6: Send OTP to email
+    sendMail(
+      email,
+      'OTP Verification',
+      `Your OTP is: ${otp}`,
+      `<h1>Your OTP is: ${otp}</h1>`
+    )
+      .then(async (result) => {
+        console.log(result);
+
+        // Step 7: Save OTP to the database
+        user.otp = otp;
+        await user.save();
+
+        // Step 8: Send Response
+        res.status(200).json({ message: 'OTP sent successfully' });
+      })
+      .catch((error) => {
+        console.error('Error sending OTP:', error.message);
+        res.status(400).json({ message: 'OTP failed' });
+      });
+  } catch (error) {
+    console.error('Error during OTP generation:', error.message);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+const verifyOTP = async (req, res) => {
+  try {
+    // Step 1: Receive User Data
+    const { email, otp } = req.body;
+
+    // Step 2: Validate User Input
+    if (!email || !otp) {
+      return res
+        .status(400)
+        .json({ error: 'Please provide both email and OTP.' });
+    }
+
+    // Step 3: Find User by Email
+    const user = await User.findOne({ email: email });
+
+    // Step 4: Verify User and OTP
+    if (!user && otp !== user.otp) {
+      return res.status(401).json({ error: 'Invalid credentials.' });
+    }
+   
+    // Step 5: Update verified field
+    user.verified = true;
+    await user.save();
+    //send jwt token 
+    const token = jwt.sign({ userId: user._id }, jwtSecret, {
+      expiresIn: "1h",
+    });
+    // Step 6: Send Response
+    res.status(200).json({ message: 'OTP verified successfully' ,token:token});
+  } catch (error) {
+    console.error('Error during OTP verification:', error.message);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
 const getGallery = async (req, res) => {
   try {
     const gallery = await Gallery.find();
@@ -224,4 +309,6 @@ module.exports = {
   update,
   deleteUser,
   getGallery,
+  sendOTP,
+  verifyOTP,
 };

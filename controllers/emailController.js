@@ -71,7 +71,7 @@ async function sendMail(to, subject, text, html) {
     return error;
   }
 }
-// sendMail()
+// sendMail('sanjaysanthosh919@gmail.com', 'Hello from gmail', 'Hello from gmail', '<h1>Hello from gmail</h1>')
 //   .then((result) => console.log('Email sent...', result))
 //   .catch((error) => console.log(error.message));
 

@@ -42,6 +42,14 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  verified:{
+    type:Boolean,
+    default:false
+  },
+  otp:{
+    type:Number,
+    default:null,
+  },
 });
 
 const User = mongoose.model('User', userSchema);
