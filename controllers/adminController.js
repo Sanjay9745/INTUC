@@ -194,7 +194,7 @@ const deleteCalendarEvent = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 }
-const AddSlogan = async (req, res) => {
+const addSlogan = async (req, res) => {
     try {
         const { slogan } = req.body;
         if (!slogan) {
