@@ -23,16 +23,16 @@ const register = async (req, res) => {
       pan_card,
     } = req.body;
 
-    // Step 2: Validate User Input
-    if (!name || !email || !password || !phoneNumber || !whatsappNumber || !age || !date_of_birth || !block || !constituency || !union ) {
-      return res.status(400).json({ error: "Please provide all required fields." });
-    }
+    // // Step 2: Validate User Input
+    // if (!name || !email || !password || !phoneNumber || !whatsappNumber || !age || !date_of_birth || !block || !constituency || !union ) {
+    //   return res.status(400).json({ error: "Please provide all required fields." });
+    // }
 
-    // Validate email format
-    const emailRegex = /^\S+@\S+\.\S+$/;
-    if (!emailRegex.test(email)) {
-      return res.status(400).json({ error: "Invalid email format." });
-    }
+    // // Validate email format
+    // const emailRegex = /^\S+@\S+\.\S+$/;
+    // if (!emailRegex.test(email)) {
+    //   return res.status(400).json({ error: "Invalid email format." });
+    // }
 
     // Validate password strength (add your own criteria)
     if (password.length < 6) {
