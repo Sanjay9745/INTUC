@@ -9,20 +9,20 @@ const userSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
+    
   },
   password: {
     type: String,
     required: true,
   },
   phoneNumber:{
-    type:Number,
+    type: String,
   },
   whatsappNumber:{
-    type:Number,
+    type: String,
   },
   age:{
-    type:Number,
+    type: String,
   },
   date_of_birth:{
     type:String,
