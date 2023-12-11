@@ -50,6 +50,10 @@ const userSchema = new mongoose.Schema({
     type:Number,
     default:null,
   },
+  forgot_otp:{
+    type:Number,
+    default:null,
+  },
   gallery_likes:{
     type:Array,
     default:[]

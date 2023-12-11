@@ -347,6 +347,117 @@ const getGalleryLikes = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 }
+const resetPassword = async (req, res) => {
+  try {
+    // Step 1: Receive User Data
+    const { password } = req.body;
+
+    // Step 2: Validate User Input
+    if (!password) {
+      return res
+        .status(400)
+        .json({ error: 'Please provide password.' });
+    }
+
+    // Step 3: Find User by Email
+    const user = await User.findById(req.user.userId);
+
+    // Step 4: Verify User and Password
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials.' });
+    }
+
+    // Step 5: Hash Password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Step 6: Update password
+    user.password = hashedPassword;
+    await user.save();
+
+    // Step 7: Send Response
+    res.status(200).json({ message: 'Password reset successfully' });
+  } catch (error) {
+    console.error('Error during password reset:', error.message);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+const forgotPassword = async (req, res) => {
+  try {
+    // Step 1: Receive User Data
+    const { email } = req.body;
+
+    // Step 2: Validate User Input
+    if (!email) {
+      return res.status(400).json({ error: 'Please provide email.' });
+    }
+
+    // Step 3: Find User by Email
+    const user = await User.findOne({ email: email });
+
+    // Step 4: Check if the user is already verified
+    if (!user) {
+      return res.status(400).json({ error: 'User not found' });
+    }
+
+    // Step 5: Generate OTP
+    const otp = Math.floor(100000 + Math.random() * 900000);
+
+    // Step 6: Send OTP to email
+    sendMail(
+      email,
+      'OTP Verification',
+      `Your OTP is: ${otp}`,
+      `<h1>Your OTP is: ${otp}</h1>`
+    )
+      .then(async (result) => {
+        console.log(result);
+
+        // Step 7: Save OTP to the database
+        user.forgot_otp = otp;
+        await user.save();
+
+        // Step 8: Send Response
+        res.status(200).json({ message: 'OTP sent successfully' });
+      })
+      .catch((error) => {
+        console.error('Error sending OTP:', error.message);
+        res.status(400).json({ message: 'OTP failed' });
+      });
+  } catch (error) {
+    console.error('Error during OTP generation:', error.message);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+const verifyForgotPasswordOTP = async (req, res) => {
+  try {
+    // Step 1: Receive User Data
+    const { email, otp } = req.body;
+
+    // Step 2: Validate User Input
+    if (!email || !otp) {
+      return res
+        .status(400)
+        .json({ error: 'Please provide both email and OTP.' });
+    }
+
+    // Step 3: Find User by Email
+    const user = await User.findOne({ email: email });
+
+    // Step 4: Verify User and OTP
+    if (!user && otp !== user.forgot_otp) {
+      return res.status(401).json({ error: 'Invalid credentials.' });
+    }
+       // Step 5: Generate JWT
+       const token = jwt.sign({ userId: user._id }, jwtSecret, {
+        expiresIn: "1h",
+      });
+    // Step 5: Send Response
+    res.status(200).json({token:token});
+  } catch (error) {
+    console.error('Error during OTP verification:', error.message);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
 module.exports = {
   register,
   login,
@@ -360,4 +471,7 @@ module.exports = {
   addLikeToImage,
   removeLikeFromImage,
   getGalleryLikes,
+  resetPassword,
+  forgotPassword,
+  verifyForgotPasswordOTP
 };

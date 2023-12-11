@@ -13,6 +13,9 @@ router.post('/register', userController.register);
 router.post('/login', userController.login);
 router.post('/sendOTP',userController.sendOTP);
 router.post('/verifyOTP',userController.verifyOTP);
+router.post('/resetPassword',userAuth,userController.resetPassword);
+router.post('/forgotPassword',userController.forgotPassword);
+router.post('/verifyForgotOTP',userController.verifyForgotPasswordOTP);
 router.post('/add-like-to-image',userAuth,userController.addLikeToImage);
 router.post('/remove-like-from-image',userAuth,userController.removeLikeFromImage);
 
