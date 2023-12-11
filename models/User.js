@@ -50,6 +50,11 @@ const userSchema = new mongoose.Schema({
     type:Number,
     default:null,
   },
+  gallery_likes:{
+    type:Array,
+    default:[]
+  
+  }
 });
 
 const User = mongoose.model('User', userSchema);

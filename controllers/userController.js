@@ -302,6 +302,51 @@ const getGallery = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+const addLikeToImage = async (req, res) => {
+  try {
+    const { imageId } = req.body;
+    const user = await User.findById(req.user.userId);
+    if (user.gallery_likes.includes(imageId)) {
+      return res.status(400).json({ error: "Already liked" });
+    }
+    user.gallery_likes.push(imageId);
+    await user.save();
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Error during login:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+const removeLikeFromImage = async (req, res) => {
+  try {
+    const { imageId } = req.body;
+    const user = await User.findById(req.user.userId);
+    if (!user.gallery_likes.includes(imageId)) {
+      return res.status(400).json({ error: "Not liked" });
+    }
+    user.gallery_likes = user.gallery_likes.filter(
+      (image) => image !== imageId
+    );
+    await user.save();
+    res.status(200).json(user);
+  } catch (error) {
+    console.error("Error during login:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+const getGalleryLikes = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId);
+    const gallery = await Gallery.find();
+    const gallery_likes = gallery.filter((image) =>
+      user.gallery_likes.includes(image._id)
+    );
+    res.status(200).json(gallery_likes);
+  } catch (error) {
+    console.error("Error during login:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+}
 module.exports = {
   register,
   login,
@@ -312,4 +357,7 @@ module.exports = {
   getGallery,
   sendOTP,
   verifyOTP,
+  addLikeToImage,
+  removeLikeFromImage,
+  getGalleryLikes,
 };

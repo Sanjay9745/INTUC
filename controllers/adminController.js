@@ -1,4 +1,5 @@
 const User = require("../models/User");
+const Admin = require("../models/Admin");
 const Calendar = require("../models/Calendar");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
@@ -6,6 +7,7 @@ const Gallery = require("../models/Galley");
 const jwtSecret = process.env.JWT_ADMIN_SECRET;
 const fs = require("fs");
 const Slogan = require("../models/Slogan");
+const Ad = require("../models/Ad");
 const adminLogin = async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -14,7 +16,7 @@ const adminLogin = async (req, res) => {
             .status(400)
             .json({ error: "Please provide all required fields." });
         }
-        const user = await User.findOne({ email });
+        const user = await Admin.findOne({ email });
         if (!user) {
         return res.status(400).json({ error: "Invalid credentials" });
         }
@@ -45,13 +47,13 @@ const adminRegister = async (req, res) => {
             .status(400)
             .json({ error: "Please provide all required fields." });
         }
-        const user = await User.findOne({ email });
+        const user = await Admin .findOne({ email });
         if (user) {
         return res.status(400).json({ error: "User already exists" });
         }
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-        const newUser = await User.create({
+        const newUser = await Admin.create({
         email,
         password: hashedPassword,
         });
@@ -69,6 +71,19 @@ const adminRegister = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 }
+
+const protected = async (req, res) => {
+    try {
+        if (req.user) {
+          res.status(200).json({ message: "You are authorized" });
+        } else {
+          res.status(401).json({ message: "You are not authorized" });
+        }
+      } catch (error) {
+        console.error("Error during login:", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
+      }
+}
 const getUser = async (req, res) => {
     const { id } = req.params.id;
     try {
@@ -82,21 +97,24 @@ const getUser = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
     try {
-        const users = await User.find({});
+        const { page = 1, perPage = 10 } = req.query;
+        const skip = (page - 1) * perPage;
+
+        const users = await User.find({})
+            .skip(skip)
+            .limit(Number(perPage));
+
         res.status(200).json(users);
     } catch (error) {
         console.error("Error getting all users:", error.message);
         res.status(500).json({ error: "Internal Server Error" });
     }
-}
+};
 
 const deleteUser = async (req, res) => {
     try {
-        const user = await User.findById(req.params.id);
-        if (!user) {
-        return res.status(404).json({ error: "User not found" });
-        }
-        await user.remove();
+        const user = await User.findOneAndDelete({_id:req.params.id});
+      
         res.status(200).json({ msg: "User removed" });
     } catch (error) {
         console.error("Error deleting user:", error.message);
@@ -127,7 +145,7 @@ const addGallery = async (req, res) => {
         const newGallery = await Gallery.create({
         name,
         description,
-        image: `galleryImage/${imageObj.filename}`,
+        image: `${process.env.DOMAIN}/galleryImage/${imageObj.filename}`,
         });
         res.status(201).json(newGallery);
     } catch (error) {
@@ -135,6 +153,7 @@ const addGallery = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 }
+
 const deleteImage = async (req, res) => {
     try {
         const image = await Gallery.findOneAndDelete({_id:req.params.id});
@@ -150,8 +169,8 @@ const deleteImage = async (req, res) => {
 }
 const addCalendarEvent = async (req, res) => {
     try {
-        const { date } = req.params;
-        const { title, description } = req.body;
+        
+        const { title, description,date  } = req.body;
         if (!date || !title || !description) {
         return res
             .status(400)
@@ -233,6 +252,51 @@ const deleteSlogan = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 }
+
+const addAd = async (req, res) => {
+    try {
+        const { name, href} = req.body;
+        req.body.image = req.file;
+        let imageObj = req.body.image;
+        // if (!name || !description ) {
+        // return res
+        //     .status(400)
+        //     .json({ error: "Please provide all required fields." });
+        // }
+        const newAd = await Ad.create({
+        name,
+        href,
+        image: `${process.env.DOMAIN}/ADImage/${imageObj.filename}`,
+        });
+        res.status(201).json(newAd);
+    } catch (error) {
+        console.error("Error adding ad:", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+const getAd = async (req, res) => {
+    try {
+        const ad = await Ad.find({});
+        res.status(200).json(ad);
+    } catch (error) {
+        console.error("Error getting ad:", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
+
+const deleteAd = async (req, res) => {
+    try {
+        const ad = await Ad.findOneAndDelete({_id:req.params.id});
+        if (!ad) {
+        return res.status(404).json({ error: "Ad not found" });
+        }
+        
+        res.status(200).json({ msg: "Ad removed" });
+    } catch (error) {
+        console.error("Error deleting ad:", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+}
 module.exports = {
     adminLogin,
     adminRegister,
@@ -247,5 +311,9 @@ module.exports = {
     deleteCalendarEvent,
     addSlogan,
     getSlogan,
-    deleteSlogan
+    deleteSlogan,
+    protected,
+    addAd,
+    getAd,
+    deleteAd
 }
