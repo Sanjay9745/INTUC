@@ -297,6 +297,43 @@ const deleteAd = async (req, res) => {
         res.status(500).json({ error: "Internal Server Error" });
     }
 }
+
+
+const sendNotification = async (req, res) => {
+    try {
+        const { title, url } = req.body;
+        const imageObj = req.file;
+
+        const response = await fetch("https://onesignal.com/api/v1/notifications", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer YzdhMzA0ZWItYTYwOS00NDE2LWI1NjAtYjA4MmIzZjM1YzM0',
+            },
+            body: JSON.stringify({
+                app_id: "2caec03f-017b-4bc9-936a-23f46c0122b0",
+                contents: {
+                    en: title
+                },
+                big_picture: `${process.env.DOMAIN}/OneImage/${imageObj.filename}`,
+                included_segments: ["All"],
+                url: url
+            }),
+        });
+
+        const data = await response.json();
+
+        // Check if the request was successful
+        if (response.ok) {
+            res.status(200).json({ message: 'Notification sent successfully', data });
+        } else {
+            res.status(response.status).json({ error: data.errors[0].message });
+        }
+    } catch (error) {
+        console.error("Error sending notification:", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
 module.exports = {
     adminLogin,
     adminRegister,
@@ -315,5 +352,6 @@ module.exports = {
     protected,
     addAd,
     getAd,
-    deleteAd
+    deleteAd,
+    sendNotification
 }
